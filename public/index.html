@@ -5,37 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sipariş Sorgulama</title>
   <link rel="stylesheet" href="/styles.css" />
-  <meta name="color-scheme" content="light dark">
+  <meta name="color-scheme" content="light">
 </head>
 <body>
-  <main class="hero-wrap">
-    <section class="hero">
-      <div class="hero-top">
-        <div class="logo">
-          <span class="mark"></span>
-          <span>NO 9</span>
+  <main class="shell">
+    <div class="stack">
+      <img class="brand-logo" src="https://hizliresim.com/bf9ytr4" alt="Logo" />
+      <form id="lookup-form" class="bar2" autocomplete="off">
+        <div class="bar2-inner">
+          <input id="orderInput" class="fake-input" type="text" aria-label="Sipariş numarası" />
         </div>
-        <div class="help">Sipariş numaranızı girin</div>
-      </div>
-      <h1 class="hero-title">Sipariş Numaranızı Girin</h1>
-      <form id="lookup-form" class="hero-form" autocomplete="off">
-        <input class="hero-input" id="orderInput" placeholder="Örn: ABC12345" aria-label="Sipariş numarası" required />
-        <button class="hero-btn" type="submit">Sorgula →</button>
+        <button class="btn2" type="submit">Sorgula</button>
       </form>
-      <div class="hero-samples">
-        Örnek: <code>TEST123</code> &nbsp;•&nbsp; Hızlı erişim için Enter'a basabilirsiniz.
-      </div>
-      <div class="note">Bilgi güvenliği için sipariş numaranızı kimseyle paylaşmayın.</div>
-    </section>
+      <div class="note2">Enter tuşu ile de sorgulayabilirsiniz.</div>
+    </div>
   </main>
   <script>
-    const form = document.getElementById('lookup-form');
     const input = document.getElementById('orderInput');
+    const form = document.getElementById('lookup-form');
+    const DEFAULT_TEXT = "sipariş numaranızı girin";
+    function setPrimed(){ input.value = DEFAULT_TEXT; input.dataset.primed = "true"; }
+    setPrimed();
+    input.addEventListener('focus', () => { if (input.dataset.primed === "true") { input.value = ""; input.dataset.primed = "false"; } });
+    input.addEventListener('blur', () => { if (!input.value.trim()) setPrimed(); });
+    document.querySelector('.bar2').addEventListener('click', (e) => { if (!e.target.closest('.btn2')) input.focus(); });
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      const order = input.value.trim();
-      if (!order) { input.focus(); return; }
-      window.location.href = `/order/${encodeURIComponent(order)}`;
+      let val = input.value.trim();
+      if (!val || val === DEFAULT_TEXT) { input.focus(); return; }
+      window.location.href = `/order/${encodeURIComponent(val)}`;
     });
   </script>
 </body>
