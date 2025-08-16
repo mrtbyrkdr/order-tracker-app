@@ -8,30 +8,48 @@
   <meta name="color-scheme" content="light">
 </head>
 <body>
-  <main class="shell">
-    <div class="stack">
-      <img class="brand-logo" src="https://hizliresim.com/bf9ytr4" alt="Logo" />
-      <form id="lookup-form" class="bar2" autocomplete="off">
-        <div class="bar2-inner">
-          <input id="orderInput" class="fake-input" type="text" aria-label="Sipariş numarası" />
-        </div>
-        <button class="btn2" type="submit">Sorgula</button>
+  <main class="logoform-wrap">
+    <div class="logoform-stack">
+      <!-- Main brand logo -->
+      <img class="brand-logo" src="https://i.hizliresim.com/bf9ytr4.png" alt="Logo" />
+
+      <!-- Logo-inspired black bar -->
+      <form id="lookup-form" class="logoform" autocomplete="off">
+        <div class="logoform-mark" aria-hidden="true"></div>
+        <input id="orderInput" class="logoform-input" type="text" aria-label="Sipariş numarası" />
+        <button class="logoform-btn" type="submit">Sorgula</button>
       </form>
-      <div class="note2">Enter tuşu ile de sorgulayabilirsiniz.</div>
     </div>
   </main>
+
   <script>
+    // Click-to-clear behavior with inline text (not placeholder), per your spec
     const input = document.getElementById('orderInput');
     const form = document.getElementById('lookup-form');
     const DEFAULT_TEXT = "sipariş numaranızı girin";
     function setPrimed(){ input.value = DEFAULT_TEXT; input.dataset.primed = "true"; }
     setPrimed();
-    input.addEventListener('focus', () => { if (input.dataset.primed === "true") { input.value = ""; input.dataset.primed = "false"; } });
-    input.addEventListener('blur', () => { if (!input.value.trim()) setPrimed(); });
-    document.querySelector('.bar2').addEventListener('click', (e) => { if (!e.target.closest('.btn2')) input.focus(); });
+
+    input.addEventListener('focus', () => {
+      if (input.dataset.primed === "true") {
+        input.value = "";
+        input.dataset.primed = "false";
+      }
+    });
+    input.addEventListener('blur', () => {
+      if (!input.value.trim()) setPrimed();
+    });
+
+    // Clicking anywhere on the bar (except the button) focuses input
+    document.querySelector('.logoform').addEventListener('click', (e) => {
+      if (e.target.closest('.logoform-btn')) return;
+      input.focus();
+    });
+
+    // Submit on Enter or button click
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      let val = input.value.trim();
+      const val = input.value.trim();
       if (!val || val === DEFAULT_TEXT) { input.focus(); return; }
       window.location.href = `/order/${encodeURIComponent(val)}`;
     });
