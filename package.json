@@ -1,7 +1,7 @@
 {
   "name": "order-tracker-app",
   "version": "1.0.0",
-  "description": "Simple order lookup + admin panel with step-by-step viewer",
+  "description": "Order lookup + admin panel with step viewer",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
