@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sipariş Adımları</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="small">← Yeni sorgu</a>
+    <h1>Sipariş <span id="orderNo"></span></h1>
+    <div class="row">
+      <div class="card" style="flex:2">
+        <div class="title">Current step</div>
+        <div class="big" id="currentStep">-</div>
+        <div class="badge"><span class="dot"></span><span id="colorName">Black</span></div>
+        <div class="progress small" id="progress">0 / 0</div>
+        <div class="controls">
+          <button id="prev" class="control-btn" title="Önceki (←)">←</button>
+          <button id="play" class="control-btn" aria-pressed="false" title="Oynat/Duraklat (Space)">▶</button>
+          <select id="intervalSelect" title="Süre">
+            <option value="3000">3s</option>
+            <option value="5000" selected>5s</option>
+            <option value="10000">10s</option>
+            <option value="15000">15s</option>
+            <option value="20000">20s</option>
+          </select>
+          <button id="next" class="control-btn" title="Sonraki (→)">→</button>
+          <input id="jumpInput" type="text" placeholder="Adıma git (örn: 42)" style="max-width:160px" />
+          <button id="jumpBtn" class="control-btn">Git</button>
+        </div>
+      </div>
+      <div class="card" style="flex:1">
+        <div class="title">Step list</div>
+        <div id="list" class="list"></div>
+      </div>
+    </div>
+    <footer>Sessiz mod • Oklar veya otomatik geçiş ile adımlar arasında gezinebilirsiniz.</footer>
+  </div>
+
+  <script>
+    function getOrderFromPath(){
+      const parts = window.location.pathname.split("/");
+      return decodeURIComponent(parts[2] || "");
+    }
+
+    const orderNo = getOrderFromPath();
+    document.getElementById("orderNo").textContent = orderNo;
+
+    const state = { steps: [], index: 0, timer: null };
+
+    async function load(){
+      const res = await fetch(`/api/order/${encodeURIComponent(orderNo)}`);
+      if(!res.ok){
+        alert("Kayıt bulunamadı.");
+        location.href = "/";
+        return;
+      }
+      const data = await res.json();
+      state.steps = data.steps || [];
+      state.index = 0;
+      document.getElementById("colorName").textContent = data.color || "Black";
+      render();
+    }
+
+    function render(){
+      const cur = state.steps[state.index];
+      document.getElementById("currentStep").textContent = cur ? cur.notch : "-";
+      document.getElementById("progress").textContent = `${state.index+1} / ${state.steps.length}`;
+      const list = document.getElementById("list");
+      list.innerHTML = "";
+      const start = Math.max(0, state.index - 2);
+      const end = Math.min(state.steps.length - 1, state.index + 2);
+      for(let i=start;i<=end;i++){
+        const item = state.steps[i];
+        const row = document.createElement("div");
+        row.className = "step-list";
+        const r = document.createElement("div");
+        r.className = "radio" + (i===state.index ? " current" : "");
+        row.appendChild(r);
+        const txt = document.createElement("div");
+        txt.textContent = `${item.step}  •  ${item.notch}`;
+        row.appendChild(txt);
+        list.appendChild(row);
+      }
+    }
+
+    function next(){ if(state.index < state.steps.length - 1){ state.index++; render(); } else { stop(); } }
+    function prev(){ if(state.index > 0){ state.index--; render(); } }
+    function play(){
+      if(state.timer) return;
+      const ms = parseInt(document.getElementById("intervalSelect").value, 10) || 5000;
+      state.timer = setInterval(next, ms);
+      document.getElementById("play").setAttribute("aria-pressed","true");
+      document.getElementById("play").textContent = "⏸";
+    }
+    function stop(){
+      if(state.timer){
+        clearInterval(state.timer);
+        state.timer = null;
+        document.getElementById("play").setAttribute("aria-pressed","false");
+        document.getElementById("play").textContent = "▶";
+      }
+    }
+    document.getElementById("prev").onclick = prev;
+    document.getElementById("next").onclick = next;
+    document.getElementById("play").onclick = () => state.timer ? stop() : play();
+    document.getElementById("jumpBtn").onclick = () => {
+      const v = parseInt(document.getElementById("jumpInput").value,10);
+      if(Number.isFinite(v)){
+        const idx = v-1;
+        if(idx>=0 && idx < state.steps.length){
+          state.index = idx;
+          render();
+        }
+      }
+    };
+    document.getElementById("intervalSelect").onchange = () => { if(state.timer){ stop(); play(); } };
+    window.addEventListener("keydown", (e) => {
+      if(e.key === "ArrowRight") next();
+      if(e.key === "ArrowLeft") prev();
+      if(e.code === "Space"){ e.preventDefault(); state.timer ? stop() : play(); }
+    });
+    load();
+  </script>
+</body>
+</html>

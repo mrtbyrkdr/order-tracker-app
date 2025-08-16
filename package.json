@@ -1,0 +1,14 @@
+{
+  "name": "order-tracker-app",
+  "version": "1.0.0",
+  "description": "Simple order lookup + admin panel with step-by-step viewer",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "express-session": "^1.17.3"
+  }
+}

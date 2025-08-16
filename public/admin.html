@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin • Sipariş Verisi</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Yönetici Paneli</h1>
+    <div id="loginBox" class="card">
+      <div class="title">Giriş</div>
+      <label>Yönetici Şifresi</label>
+      <input id="password" type="password" placeholder="Admin şifresi" />
+      <div style="margin-top:10px">
+        <button class="btn" id="loginBtn">Giriş yap</button>
+      </div>
+      <div class="small">İpucu: Sunucuda <code>ADMIN_PASSWORD</code> ortam değişkeni.</div>
+    </div>
+
+    <div id="panel" style="display:none">
+      <div class="card">
+        <div class="title">Sipariş Verisi Oluştur / Güncelle</div>
+        <label>Sipariş numarası</label>
+        <input id="orderNo" type="text" placeholder="Örn: ABC12345" />
+        <label>Adımlar (her satır: <code>adım - çentik</code>)</label>
+        <textarea id="dataText" placeholder="1 - 93&#10;2 - 201&#10;3 - 9&#10;4 - 160"></textarea>
+        <div class="controls">
+          <button class="control-btn" id="loadBtn">Yükle</button>
+          <button class="control-btn" id="saveBtn">Kaydet</button>
+          <button class="control-btn" id="logoutBtn">Çıkış</button>
+        </div>
+        <div class="small" id="status"></div>
+      </div>
+      <div class="card">
+        <div class="title">Örnek veri</div>
+        <pre id="preview" class="small"></pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const loginBox = document.getElementById("loginBox");
+    const panel = document.getElementById("panel");
+    const statusEl = document.getElementById("status");
+
+    document.getElementById("loginBtn").onclick = async () => {
+      const res = await fetch("/api/admin/login", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ password: document.getElementById("password").value })
+      });
+      if(res.ok){ loginBox.style.display = "none"; panel.style.display = "block"; }
+      else { alert("Şifre hatalı"); }
+    };
+
+    document.getElementById("logoutBtn").onclick = async () => { await fetch("/api/admin/logout", { method:"POST" }); location.reload(); };
+
+    async function save(){
+      const orderNo = document.getElementById("orderNo").value.trim();
+      const dataText = document.getElementById("dataText").value;
+      if(!orderNo || !dataText){ alert("Sipariş no ve veri gerekli"); return; }
+      const res = await fetch("/api/admin/save", {
+        method:"POST", headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ orderNo, dataText })
+      });
+      const out = await res.json();
+      if(res.ok){ statusEl.textContent = `Kaydedildi. Toplam ${out.total} adım.`; showPreview(dataText); }
+      else { alert(out.error || "Hata"); }
+    }
+    document.getElementById("saveBtn").onclick = save;
+
+    async function loadExisting(){
+      const orderNo = document.getElementById("orderNo").value.trim();
+      if(!orderNo){ alert("Sipariş no girin"); return; }
+      const res = await fetch(`/api/admin/order/${encodeURIComponent(orderNo)}`);
+      const out = await res.json();
+      if(res.ok){
+        const text = (out.steps || []).map(s => `${s.step} - ${s.notch}`).join("\n");
+        document.getElementById("dataText").value = text;
+        statusEl.textContent = `Yüklendi. Toplam ${out.total} adım.`;
+        showPreview(text);
+      } else { alert(out.error || "Bulunamadı"); }
+    }
+    document.getElementById("loadBtn").onclick = loadExisting;
+
+    function showPreview(text){
+      const lines = text.split(/\r?\n/).filter(Boolean).slice(0,10);
+      document.getElementById("preview").textContent = lines.join("\n") + (text.split(/\r?\n/).filter(Boolean).length>10 ? "\n..." : "");
+    }
+  </script>
+</body>
+</html>
