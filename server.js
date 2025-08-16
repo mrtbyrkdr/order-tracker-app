@@ -7,19 +7,19 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "change-me";
 
-// Prefer a writable tmp dir on Render; otherwise use local 'data/'
+// Writable data dir for Render (tmp), fallback to local data, else memory
 let DATA_DIR = path.join(__dirname, "data");
 try {
   if (process.env.RENDER) {
-    const tmpCandidates = ["/var/tmp/data", "/tmp/data"];
-    for (const d of tmpCandidates) {
+    const candidates = ["/var/tmp/data", "/tmp/data"];
+    for (const d of candidates) {
       try { fs.mkdirSync(d, { recursive: true }); DATA_DIR = d; break; } catch {}
     }
   }
   fs.mkdirSync(DATA_DIR, { recursive: true });
 } catch (e) {
-  console.error("DATA_DIR oluşturulamadı, belleğe yazılacak:", e.message);
-  DATA_DIR = null; // memory fallback
+  console.warn("DATA_DIR yaratılamadı, memory fallback:", e.message);
+  DATA_DIR = null;
 }
 
 app.use(express.json({ limit: "5mb" }));
@@ -29,17 +29,12 @@ app.use(session({
   secret: process.env.SESSION_SECRET || "please-change-this-secret",
   resave: false,
   saveUninitialized: false,
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 8,
-    sameSite: "lax",
-    secure: false, // Render HTTPS olsa bile Lax + false cookie set etmeye izin verir
-  },
+  cookie: { maxAge: 1000 * 60 * 60 * 8, sameSite: "lax", secure: false }
 }));
 
 // static
 app.use(express.static(path.join(__dirname, "public")));
 
-// helpers
 function parseDataText(text) {
   const lines = text.split(/\r?\n/);
   const steps = [];
@@ -53,19 +48,16 @@ function parseDataText(text) {
   steps.sort((a, b) => a.step - b.step);
   return steps;
 }
-
-function orderPath(orderNo) {
+function orderPath(orderNo){
   const safe = String(orderNo).replace(/[^a-zA-Z0-9_\-]/g, "_");
   return DATA_DIR ? path.join(DATA_DIR, `${safe}.json`) : null;
 }
 
-// Memory fallback when disk is not writable/available
 const memoryStore = new Map();
 
 // Public API
 app.get("/api/order/:orderNo", (req, res) => {
   const p = orderPath(req.params.orderNo);
-  // prefer disk if available
   if (p) {
     try {
       if (fs.existsSync(p)) {
@@ -74,39 +66,32 @@ app.get("/api/order/:orderNo", (req, res) => {
       }
     } catch (e) { return res.status(500).json({ error: "Dosya okunamadı", detail: e.message }); }
   }
-  // then memory
   if (memoryStore.has(req.params.orderNo)) return res.json(memoryStore.get(req.params.orderNo));
   return res.status(404).json({ error: "Sipariş bulunamadı" });
 });
 
-// Admin auth
+// Admin API
 app.post("/api/admin/login", (req, res) => {
   const { password } = req.body;
   if (password === ADMIN_PASSWORD) { req.session.isAdmin = true; return res.json({ ok: true }); }
   res.status(401).json({ ok: false, error: "Şifre hatalı" });
 });
 app.post("/api/admin/logout", (req, res) => { req.session.destroy(() => res.json({ ok: true })); });
-function requireAdmin(req, res, next) { if (req.session && req.session.isAdmin) return next(); return res.status(401).json({ error: "Yetkisiz" }); }
+function requireAdmin(req, res, next){ if (req.session && req.session.isAdmin) return next(); return res.status(401).json({ error: "Yetkisiz" }); }
 
-// Admin save/load
 app.post("/api/admin/save", requireAdmin, (req, res) => {
   try {
     const { orderNo, dataText } = req.body;
     if (!orderNo || !dataText) return res.status(400).json({ error: "Eksik veri" });
     const steps = parseDataText(dataText);
-    const payload = { orderNo: String(orderNo), total: steps.length, color: "Black", steps, updatedAt: new Date().toISOString() };
-
-    // try disk first
+    const payload = { orderNo: String(orderNo), total: steps.length, steps, updatedAt: new Date().toISOString() };
     const p = orderPath(orderNo);
     try {
       if (p) {
         fs.writeFileSync(p, JSON.stringify(payload, null, 2), "utf-8");
         return res.json({ ok: true, total: steps.length, where: p });
       }
-    } catch (e) {
-      console.warn("Diske yazılamadı, belleğe kaydediliyor:", e.message);
-    }
-    // memory fallback
+    } catch (e) { console.warn("Diske yazılamadı, memory fallback:", e.message); }
     memoryStore.set(String(orderNo), payload);
     return res.json({ ok: true, total: steps.length, where: "memory" });
   } catch (e) {
@@ -129,28 +114,26 @@ app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "index.ht
 app.get("/order/:orderNo", (req, res) => res.sendFile(path.join(__dirname, "public", "order.html")));
 app.get("/admin", (req, res) => res.sendFile(path.join(__dirname, "public", "admin.html")));
 
-// Seed TEST123 at boot if not exists
-(function seed() {
-  const seedSteps = [
+// Seed TEST123 on boot
+(function seed(){
+  const steps = [
     {step:1, notch:93},{step:2, notch:201},{step:3, notch:9},{step:4, notch:160},{step:5, notch:151},
     {step:6, notch:192},{step:7, notch:230},{step:8, notch:212},{step:9, notch:86},{step:10, notch:29}
   ];
-  const payload = { orderNo: "TEST123", total: 10, color: "Black", steps: seedSteps, updatedAt: new Date().toISOString() };
+  const payload = { orderNo: "TEST123", total: steps.length, steps, updatedAt: new Date().toISOString() };
   const p = orderPath("TEST123");
   try {
-    if (p) {
-      if (!fs.existsSync(p)) {
-        fs.writeFileSync(p, JSON.stringify(payload, null, 2), "utf-8");
-        console.log("Seed yazıldı:", p);
-      }
-    } else {
+    if (p && !fs.existsSync(p)) {
+      fs.writeFileSync(p, JSON.stringify(payload, null, 2), "utf-8");
+      console.log("TEST123 seed ->", p);
+    } else if (!p) {
       if (!memoryStore.has("TEST123")) memoryStore.set("TEST123", payload);
-      console.log("Seed belleğe yazıldı.");
+      console.log("TEST123 seed -> memory");
     }
   } catch (e) {
     if (!memoryStore.has("TEST123")) memoryStore.set("TEST123", payload);
-    console.warn("Seed diske yazılamadı, belleğe alındı:", e.message);
+    console.warn("Seed diske yazılamadı, memory:", e.message);
   }
 })();
 
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT} (DATA_DIR=${DATA_DIR || "memory"})`));
+app.listen(PORT, () => console.log(`Server on http://localhost:${PORT} (DATA_DIR=${DATA_DIR || "memory"})`));

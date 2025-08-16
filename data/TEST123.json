@@ -1,7 +1,6 @@
 {
   "orderNo": "TEST123",
   "total": 10,
-  "color": "Black",
   "steps": [
     {
       "step": 1,
