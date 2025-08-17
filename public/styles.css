@@ -30,14 +30,14 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
 .small{font-size:12px;color:#c6c6cc}
 
 /* unified box */
-.unified{display:flex;gap:18px;align-items:stretch;padding:18px}
+.unified{position:relative;display:flex;gap:18px;align-items:stretch;padding:18px}
 .currentBox{flex:1;min-width:220px;display:flex;flex-direction:column;justify-content:center}
 .window7{flex:1.5;min-width:260px;display:grid;grid-template-columns:1fr;grid-template-rows:repeat(7, 1fr);gap:10px;align-content:center}
 .slot{height:56px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:rgba(255,255,255,.02);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:28px;letter-spacing:.5px}
 .slot.current{border-color:rgba(255,255,255,.45);background:rgba(255,255,255,.10)}
 
 /* responsive */
-@media (max-width:720px){.unified{flex-direction:column}.big{font-size:64px}.spin{width:100px}.window7{min-width:unset}.slot{height:52px;font-size:24px}}
+@media (max-width: 600px){.unified{position:relative;flex-direction:column}.big{font-size:64px}.spin{width:100px}.window7{min-width:unset}.slot{height:52px;font-size:24px}}
   .big{font-size:88px;font-weight:800;line-height:1}
   .spin{width:100px}
   .window7{flex:1.5;min-width:260px;display:grid;grid-template-columns:1fr;grid-template-rows:repeat(7, 1fr);gap:10px;align-content:center}
@@ -45,13 +45,7 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
 
 
 /* Unified top box: current (left-top) + vertical 7-list (right, top-left aligned) */
-.unifiedTop{
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 18px;
-  align-items: start;
-}
+.unifiedTop{position:relative;display:grid;grid-template-columns:minmax(220px,1fr) minmax(260px,1.2fr);gap:18px;align-items:start}
 .currentBig{
   display:flex;
   flex-direction: column;
@@ -91,8 +85,8 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
 #jumpInput{ order: 5; }
 #jumpBtn{ order: 6; }
 
-@media (max-width: 720px){
-  .unifiedTop{ grid-template-columns: 1fr; }
+@media (max-width: 600px){
+  .unifiedTop{position:relative;display:grid;grid-template-columns:minmax(220px,1fr) minmax(260px,1.2fr);gap:18px;align-items:start}
   .window7{ grid-template-rows: repeat(7,44px); }
   .slot{ height: 44px; font-size: 22px; }
   .controls.fullwidth{ grid-template-columns: repeat(2, 1fr); }
