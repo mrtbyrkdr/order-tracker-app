@@ -72,3 +72,19 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
   .currentBox{ min-height: 180px; }
   .currentNum{ font-size: clamp(72px, 20vw, 140px); }
 }
+
+/* Ensure left cell behaves like a 500x500 block proportionally and centers content */
+.unifiedGrid{ grid-template-columns: 1fr 1fr; }
+.currentBox{ display:grid; grid-template-rows:auto 1fr; align-items:stretch; }
+.currentNum{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  height:100%;
+  font-weight:900;
+  line-height:1;
+  letter-spacing:.5px;
+  /* fallback size; JS will fit to box */
+  font-size: 120px;
+}

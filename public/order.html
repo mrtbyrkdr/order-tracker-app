@@ -102,6 +102,36 @@
       if(e.code === 'Space'){ e.preventDefault(); state.timer ? stop() : play(); }
     });
 
+    
+    function fitCurrentNumber(){
+      const el = document.getElementById('currentStep');
+      if(!el) return;
+      // el is the .currentNum (fills its grid row)
+      const boxW = el.clientWidth;
+      const boxH = el.clientHeight;
+      if (!boxW || !boxH) return;
+      const text = el.textContent || '';
+      // Early return for empty
+      if (!text) return;
+
+      let lo = 16, hi = 400, best = 16;
+      const paddingFactor = 0.9; // keep 10% breathing space
+
+      // Save original styles
+      const old = el.style.fontSize;
+
+      while (lo <= hi){
+        const mid = Math.floor((lo+hi)/2);
+        el.style.fontSize = mid + 'px';
+        // measure
+        const fits = (el.scrollWidth <= boxW * paddingFactor) && (el.scrollHeight <= boxH * paddingFactor);
+        if (fits){ best = mid; lo = mid + 1; } else { hi = mid - 1; }
+      }
+      el.style.fontSize = best + 'px';
+    }
+
+    window.addEventListener('resize', () => { fitCurrentNumber(); });
+
     load();
   </script>
 </body>
