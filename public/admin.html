@@ -1,14 +1,18 @@
 <!doctype html>
 <html lang="tr">
-<head><meta charset="utf-8"><title>Admin</title></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Admin</title><link rel="stylesheet" href="/styles.css"></head>
 <body>
-  <h2>Admin Paneli</h2>
-  <form id="saveForm">
-    <label>Sipariş ID: <input name="id" required></label><br><br>
-    <textarea name="steps" rows="10" cols="40" placeholder="1 - 93
+  <div class="container">
+    <h2>Admin Paneli</h2>
+    <div class="card">
+      <form id="saveForm">
+        <label>Sipariş ID: <input name="id" required></label><br><br>
+        <textarea name="steps" rows="10" cols="40" placeholder="1 - 93
 2 - 201"></textarea><br><br>
-    <button type="submit">Kaydet</button>
-  </form>
+        <button type="submit" class="btn">Kaydet</button>
+      </form>
+    </div>
+  </div>
   <script>
     document.getElementById('saveForm').addEventListener('submit', async e => {
       e.preventDefault();
@@ -16,8 +20,9 @@
       const raw = e.target.steps.value.trim().split(/\n/);
       const steps = raw.filter(Boolean).map(line => {
         const m = line.match(/^(\d+)\s*-\s*(\d+)$/);
+        if(!m) return null;
         return { step: parseInt(m[1],10), notch: parseInt(m[2],10) };
-      });
+      }).filter(Boolean);
       const res = await fetch('/api/admin/save', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id, steps })});
       const out = await res.json();
       if(res.ok) alert('Kaydedildi ('+out.total+' adım)'); else alert(out.error||'Hata');

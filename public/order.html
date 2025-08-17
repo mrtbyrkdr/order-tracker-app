@@ -18,10 +18,7 @@
     .item.current{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.08);font-weight:800}
     .spin{width:110px;text-align:right;padding:10px;border:1px solid rgba(255,255,255,.18);border-radius:10px;background:rgba(255,255,255,.04);color:#fff}
     .small{font-size:12px;color:#c6c6cc}
-  </style>
-
-  <style>
-    @media (max-width: 520px){
+    @media (max-width:520px){
       .big{font-size:72px}
       .controls{gap:6px}
       .spin{width:100px}
@@ -79,7 +76,7 @@
         const item = state.steps[i];
         const row = document.createElement('div');
         row.className = 'item' + (i===state.index ? ' current' : '');
-        row.textContent = `${item.notch}`; // sadece çentik değeri
+        row.textContent = `${item.notch}`;
         list.appendChild(row);
       }
     }
