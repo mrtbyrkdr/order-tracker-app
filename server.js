@@ -4,8 +4,10 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
+app.set('trust proxy', 1); // Render/Proxy friendly
 const PORT = process.env.PORT || 3000;
 
+// Parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -14,7 +16,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'gizli',
   resave: false,
   saveUninitialized: false,
-  cookie: { sameSite: 'lax' }
+  cookie: { sameSite: 'lax' } // not secure to support http in preview
 }));
 
 // Data store
@@ -29,7 +31,7 @@ function loadOrders() {
 }
 function saveOrders(obj) { fs.writeFileSync(dataFile, JSON.stringify(obj, null, 2)); }
 
-// Seed
+// Seed data (for TEST123 demo)
 const seed = [
   { step: 1, notch: 93 }, { step: 2, notch: 201 }, { step: 3, notch: 9 },
   { step: 4, notch: 160 }, { step: 5, notch: 151 }, { step: 6, notch: 192 },
@@ -44,16 +46,17 @@ function requireAdmin(req, res, next) {
   return res.redirect('/login.html');
 }
 
-// Public pages (before static: protect /admin.html explicitly)
+// Public pages (login + order)
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 app.get('/order/:id', (req, res) => res.sendFile(path.join(__dirname, 'public', 'order.html')));
 app.get('/login', (req, res) => res.redirect('/login.html'));
 app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
 
-// Protect direct access to admin.html BEFORE static middleware
+// PROTECT admin pages BEFORE static
+app.get('/admin', requireAdmin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 app.get('/admin.html', requireAdmin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 
-// Static after route protections
+// Static after protections
 app.use(express.static(path.join(__dirname, 'public')));
 
 // APIs
