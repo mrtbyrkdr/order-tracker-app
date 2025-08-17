@@ -51,12 +51,24 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
   .controls .spin{width:120px}
 }
 
-.current-step-number {
+/* Center the current step number in the left column (fills column, max 3 digits) */
+.currentBox{
+  display: grid;
+  grid-template-rows: auto 1fr;
+  align-items: stretch;
+  min-height: 220px;
+}
+.currentNum{
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(72px, 12vw, 160px);
-  font-weight: bold;
-  height: 100%;
-  width: 100%;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.5px;
+  /* Scales to fill column but stays readable on mobile */
+  font-size: clamp(96px, 13vw, 180px);
+}
+@media (max-width: 520px){
+  .currentBox{ min-height: 180px; }
+  .currentNum{ font-size: clamp(72px, 20vw, 140px); }
 }
