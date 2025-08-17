@@ -1,24 +1,26 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
-<head><meta charset="UTF-8"><title>Admin</title></head>
+<head><meta charset="utf-8"><title>Admin</title></head>
 <body>
   <h2>Admin Paneli</h2>
   <form id="saveForm">
     <label>Sipariş ID: <input name="id" required></label><br><br>
-    <textarea name="steps" rows="10" cols="40" placeholder="1 - 93\n2 - 201"></textarea><br><br>
+    <textarea name="steps" rows="10" cols="40" placeholder="1 - 93
+2 - 201"></textarea><br><br>
     <button type="submit">Kaydet</button>
   </form>
   <script>
-    document.getElementById('saveForm').addEventListener('submit',async e=>{
+    document.getElementById('saveForm').addEventListener('submit', async e => {
       e.preventDefault();
-      const id=e.target.id.value;
-      const raw=e.target.steps.value.trim().split(/\n/);
-      const steps=raw.map(line=>{
-        const parts=line.split('-').map(x=>x.trim());
-        return {step:parseInt(parts[0]),notch:parseInt(parts[1])};
+      const id = e.target.id.value.trim();
+      const raw = e.target.steps.value.trim().split(/\n/);
+      const steps = raw.filter(Boolean).map(line => {
+        const m = line.match(/^(\d+)\s*-\s*(\d+)$/);
+        return { step: parseInt(m[1],10), notch: parseInt(m[2],10) };
       });
-      await fetch('/api/admin/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,steps})});
-      alert('Kaydedildi');
+      const res = await fetch('/api/admin/save', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id, steps })});
+      const out = await res.json();
+      if(res.ok) alert('Kaydedildi ('+out.total+' adım)'); else alert(out.error||'Hata');
     });
   </script>
 </body>
