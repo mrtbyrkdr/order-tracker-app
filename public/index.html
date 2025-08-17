@@ -1,39 +1,23 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sipariş Sorgulama • Premium</title>
-  <link rel="stylesheet" href="/styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sipariş Takip</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <main class="premium-wrap">
-    <div class="stack">
-      <section class="form-shell" aria-label="Sipariş sorgulama">
-        <h1 class="form-title" style="margin:0 0 10px 6px;">Sipariş Numaranızı Girin</h1>
-        <form id="lookup-form" class="searchbar" autocomplete="off"><input id="orderInput" class="input" type="text" aria-label="Sipariş numarası" />
-          <button class="cta" type="submit">Sorgula</button>
-        </form>
-      </section>
-    </div>
-  </main>
+  <div class="overlay">
+    <form id="orderForm">
+      <input type="text" name="id" placeholder="Sipariş numaranızı girin" required />
+      <button type="submit">Sorgula</button>
+    </form>
+  </div>
   <script>
-    const input = document.getElementById('orderInput');
-    const form = document.getElementById('lookup-form');
-    const DEFAULT_TEXT = "sipariş numaranızı girin";
-    function setPrimed(){ input.value = DEFAULT_TEXT; input.dataset.primed = "true"; }
-    setPrimed();
-    input.addEventListener('focus', () => { if (input.dataset.primed === "true") { input.value = ""; input.dataset.primed = "false"; } });
-    input.addEventListener('blur', () => { if (!input.value.trim()) setPrimed(); });
-    form.addEventListener('click', (e) => { if (!e.target.closest('.cta')) input.focus(); });
-    form.addEventListener('submit', (e) => {
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      const val = input.value.trim();
-      if (!val || val === DEFAULT_TEXT) { input.focus(); return; }
-      form.style.transition = "box-shadow .25s ease, transform .25s ease";
-      form.style.boxShadow = "0 0 0 3px rgba(230,57,70,.45), 0 20px 60px rgba(0,0,0,.35)";
-      form.style.transform = "translateY(-1px)";
-      setTimeout(() => { form.style.boxShadow=""; form.style.transform=""; window.location.href = `/order/${encodeURIComponent(val)}`; }, 180);
+      const id = this.elements['id'].value.trim();
+      if(id) window.location.href = '/order/' + encodeURIComponent(id);
     });
   </script>
 </body>
