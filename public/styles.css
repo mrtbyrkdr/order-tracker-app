@@ -18,86 +18,35 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
 .input::placeholder{color:#9c9ca3}
 .cta{padding:14px 18px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:800;cursor:pointer;white-space:nowrap;box-shadow:0 12px 32px rgba(230,57,70,.35)}
 
-/* cards + order page */
+/* Cards + general */
 .container{max-width:980px;margin:0 auto;padding:24px}
-.card{border:1px solid rgba(255,255,255,.08);border-radius:16px;background:rgba(255,255,255,.04);box-shadow:0 8px 24px rgba(0,0,0,.25)}
-.row{display:flex;gap:24px;flex-wrap:wrap}
+.card{border:1px solid rgba(255,255,255,.08);border-radius:16px;background:rgba(255,255,255,.04);box-shadow:0 8px 24px rgba(0,0,0,.25);padding:18px}
 .title{font-size:12px;color:#c6c6cc;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
-.big{font-size:88px;font-weight:800;line-height:1}
-.controls{display:flex;flex-wrap:nowrap;gap:10px;justify-content:center;width:100%;margin-top:20px}
-.btn{padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:10px;background:rgba(255,255,255,.04);color:#fff;cursor:pointer}
-.spin{width:110px;text-align:right;padding:10px;border:1px solid rgba(255,255,255,.18);border-radius:10px;background:rgba(255,255,255,.04);color:#fff}
 .small{font-size:12px;color:#c6c6cc}
 
-/* unified box */
-.unified{position:relative;display:flex;gap:18px;align-items:stretch;padding:18px}
-.currentBox{flex:1;min-width:220px;display:flex;flex-direction:column;justify-content:center}
-.window7{flex:1.5;min-width:260px;display:grid;grid-template-columns:1fr;grid-template-rows:repeat(7, 1fr);gap:10px;align-content:center}
-.slot{height:56px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:rgba(255,255,255,.02);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:28px;letter-spacing:.5px}
+/* STRICT two-column unified top */
+.card.unified{position:relative}
+.unifiedGrid{
+  display:grid;
+  grid-template-columns:minmax(240px,1fr) minmax(260px,1fr);
+  gap:20px;
+  align-items:start;
+}
+.currentBox{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start}
+.big{font-size:88px;font-weight:800;line-height:1;letter-spacing:.5px}
+.window7{display:grid;grid-template-columns:1fr;grid-auto-rows:56px;gap:10px;align-content:start;justify-items:stretch}
+.slot{border:1px solid rgba(255,255,255,.12);border-radius:10px;background:rgba(255,255,255,.02);display:flex;align-items:center;justify-content:flex-start;padding:0 12px;font-weight:700;font-size:28px;letter-spacing:.5px}
 .slot.current{border-color:rgba(255,255,255,.45);background:rgba(255,255,255,.10)}
+.progressBadge{position:absolute;left:18px;bottom:12px;font-size:12px;color:#c6c6cc;opacity:.9}
 
-/* responsive */
-.big{font-size:64px}.spin{width:100px}.window7{min-width:unset}.slot{height:52px;font-size:24px}}
-  .big{font-size:88px;font-weight:800;line-height:1}
-  .spin{width:100px}
-  .window7{flex:1.5;min-width:260px;display:grid;grid-template-columns:1fr;grid-template-rows:repeat(7, 1fr);gap:10px;align-content:center}
+/* Controls: single row under the card */
+.controls{display:flex;flex-wrap:nowrap;gap:10px;justify-content:space-between;width:100%;margin-top:16px}
+.controls .btn{flex:1;min-width:0;padding:10px 12px;border:1px solid rgba(255,255,255,.18);border-radius:10px;background:rgba(255,255,255,.04);color:#fff;cursor:pointer}
+.controls .spin{width:140px;text-align:right;padding:10px;border:1px solid rgba(255,255,255,.18);border-radius:10px;background:rgba(255,255,255,.04);color:#fff}
+
+/* Keep two-column at all widths (as requested). If it must stack on very small screens, remove this media query entirely. */
+@media (max-width:480px){
+  .big{font-size:72px}
+  .controls{gap:8px}
+  .controls .spin{width:120px}
 }
-
-
-/* Unified top box: current (left-top) + vertical 7-list (right, top-left aligned) */
-.unifiedTop{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;justify-content:space-between}
-.currentBig{
-  display:flex;
-  flex-direction: column;
-  align-items:flex-start;
-  justify-content:flex-start;
-}
-.big{ font-size: clamp(56px, 9vw, 88px); font-weight: 800; line-height: 1; letter-spacing: 0.5px; }
-.window7{ display: grid; grid-template-columns: 1fr; grid-template-rows: repeat(7, 1fr); gap: 10px; align-content: start; justify-items: stretch; }
-.slot{ height: 56px; border:1px solid rgba(255,255,255,.12); border-radius:10px; background:rgba(255,255,255,.02); display:flex; align-items:center; justify-content:flex-start; padding: 0 12px; font-weight:700; font-size:28px; letter-spacing:.5px }
-.slot.current{ border-color: rgba(255,255,255,.45); background:rgba(255,255,255,.10) }
-.progressBadge{
-  position: absolute;
-  left: 16px;
-  bottom: 12px;
-  font-size: 12px;
-  color: #c6c6cc;
-  opacity: .9;
-}
-
-/* Controls: full width same as the top card width */
-.controls.fullwidth{
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 10px;
-  width: 100%;
-  margin-top: 16px;
-}
-.controls.fullwidth .btn,
-.controls.fullwidth .spin{ width: 100%; }
-.controls.fullwidth .spin{ text-align: left; }
-
-/* Order of buttons: prev, next, play, seconds, jump, go */
-#prev{ order: 1; }
-#next{ order: 2; }
-#play{ order: 3; }
-#intervalSec{ order: 4; }
-#jumpInput{ order: 5; }
-#jumpBtn{ order: 6; }
-
-
-  .window7{ grid-template-rows: repeat(7,44px); }
-  .slot{ height: 44px; font-size: 22px; }
-  .controls.fullwidth{ grid-template-columns: repeat(2, 1fr); }
-}
-
-.unifiedContent {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  align-items: start;
-}
-.currentBig { justify-self: start; }
-.stepList { justify-self: end; }
-
-.controls button{flex:1;min-width:0}
