@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Giriş</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    .loginBox{max-width:420px;margin:10vh auto}
+    .loginCard{padding:18px}
+  </style>
+</head>
+<body>
+  <div class="container loginBox">
+    <div class="card loginCard">
+      <h2>Admin Giriş</h2>
+      <form id="loginForm" class="controls">
+        <input id="password" class="spin" type="password" placeholder="Şifre" required />
+        <button class="btn" type="submit">Giriş</button>
+      </form>
+      <div class="small">Giriş yapınca admin paneline yönlendirileceksiniz.</div>
+    </div>
+  </div>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const password = document.getElementById('password').value;
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ password })
+      });
+      const out = await res.json();
+      if(out.success){ window.location.href = '/admin.html'; }
+      else { alert('Hatalı şifre'); }
+    });
+  </script>
+</body>
+</html>
