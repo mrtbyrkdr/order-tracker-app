@@ -8,18 +8,22 @@
   <style>
     body::before{
       content:"";
-      position:fixed; inset:0;
-      z-index:-1;
-      filter: blur(1.2px) brightness(0.95);
-      opacity:.18;
-      background-image:
-        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><defs><pattern id='p' width='160' height='160' patternUnits='userSpaceOnUse'><image href='https://i.hizliresim.com/bf9ytr4.png' x='20' y='20' width='120' height='120' preserveAspectRatio='xMidYMid meet'/></pattern></defs><rect width='100%' height='100%' fill='url(%23p)'/></svg>"),
-        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><defs><pattern id='p' width='160' height='160' patternUnits='userSpaceOnUse' patternTransform='translate(80,80)'><image href='https://i.hizliresim.com/bf9ytr4.png' x='20' y='20' width='120' height='120' preserveAspectRatio='xMidYMid meet'/></pattern></defs><rect width='100%' height='100%' fill='url(%23p)'/></svg>");
+      position:fixed; inset:0; z-index:-1;
+      /* Two background layers with the same logo, second one offset to create a brick/stagger pattern */
+      background-image: url('https://i.hizliresim.com/bf9ytr4.png'), url('https://i.hizliresim.com/bf9ytr4.png');
       background-repeat: repeat, repeat;
-      background-size: 160px 160px, 160px 160px;
-      animation: move1 40s linear infinite, move2 40s linear infinite;
+      /* Adjust size for smaller logos and more spacing */
+      background-size: 120px 120px, 120px 120px;
+      /* Stagger: shift the second layer half a tile right & down */
+      background-position: 0 0, 60px 60px;
+      /* Gentle motion to keep it premium but subtle */
+      animation: moveLayer1 40s linear infinite, moveLayer2 46s linear infinite;
+      /* Soft + subtle look */
+      opacity: .22;
+      filter: blur(1.1px) brightness(.96);
     }
-    @keyframes move1{from{background-position:0 0}to{background-position:200px 200px}}
+    @keyframes moveLayer1 { from{background-position: 0 0, 60px 60px} to{background-position: 200px 180px, 260px 240px} }
+    @keyframes moveLayer2 { from{background-position: 0 0, 60px 60px} to{background-position: 180px 200px, 240px 260px} }to{background-position:200px 200px}}
     @keyframes move2{from{background-position:80px 80px}to{background-position:280px 280px}}to{background-position:200px 200px}}
   </style>
 </head>
