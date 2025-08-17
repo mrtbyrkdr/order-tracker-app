@@ -30,9 +30,8 @@
 <body>
   <main class="wrap">
     <section class="panel" aria-label="Sipariş sorgulama">
-      <h1 class="title">Sipariş numaranızı girin</h1>
-      <form id="lookup" class="bar" autocomplete="off">
-        <input id="orderInput" class="input" type="text" aria-label="Sipariş numarası" />
+<form id="lookup" class="bar" autocomplete="off">
+        <input id="orderInput" class="input" type="text" aria-label="Sipariş numarası" placeholder="sipariş numaranızı girin" />
         <button class="cta" type="submit">Sorgula</button>
       </form>
     </section>
@@ -40,11 +39,6 @@
   <script>
     const input=document.getElementById('orderInput');
     const form=document.getElementById('lookup');
-    const DEFAULT_TEXT="sipariş numaranızı girin";
-    function setPrimed(){ input.value=DEFAULT_TEXT; input.dataset.primed="true"; }
-    setPrimed();
-    input.addEventListener('focus',()=>{ if(input.dataset.primed==="true"){input.value=""; input.dataset.primed="false";}});
-    input.addEventListener('blur',()=>{ if(!input.value.trim()) setPrimed(); });
     form.addEventListener('submit',(e)=>{
       e.preventDefault();
       const v=input.value.trim();
