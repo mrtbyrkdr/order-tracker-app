@@ -26,7 +26,12 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
 
 /* STRICT two-column unified top */
 .card.unified{position:relative}
-.unifiedGrid{display:grid;grid-template-columns:minmax(240px,1fr) minmax(260px,1fr);gap:20px;align-items:stretch}
+.unifiedGrid{
+  display:grid;
+  grid-template-columns:minmax(240px,1fr) minmax(260px,1fr);
+  gap:20px;
+  align-items:start;
+}
 .currentBox{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start}
 .big{font-size:88px;font-weight:800;line-height:1;letter-spacing:.5px}
 .window7{display:grid;grid-template-columns:1fr;grid-auto-rows:56px;gap:10px;align-content:start;justify-items:stretch}
@@ -69,7 +74,7 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
 }
 
 /* Ensure left cell behaves like a 500x500 block proportionally and centers content */
-.unifiedGrid{display:grid;grid-template-columns:minmax(240px,1fr) minmax(260px,1fr);gap:20px;align-items:stretch}
+.unifiedGrid{ grid-template-columns: 1fr 1fr; }
 .currentBox{ display:grid; grid-template-rows:auto 1fr; align-items:stretch; }
 .currentNum{
   display:flex;
@@ -103,9 +108,32 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
   font-size: clamp(80px, 20vw, 400px); /* scale with viewport but capped */
 }
 
-/* Fill the left column's height and center the number both axes */
-.currentBox{align-self:stretch;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:320px}
-.currentNum{display:flex;align-items:center;justify-content:center;width:100%;height:100%;text-align:center;font-weight:900;line-height:1;font-size:clamp(100px,20vw,420px)}
 
-/* Center titles inside the unified card */
-.card.unified .title{ text-align:center; width:100%; }
+.currentBox{
+  display: grid;
+  grid-template-rows: auto 1fr; /* title on top, number area fills */
+  align-items: stretch;
+  min-height: 420px; /* give room; behaves like ~500x500 when container large */
+}
+.currentBox .title{
+  text-align: center; /* center 'Mevcut adım' */
+}
+.currentNumWrap{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  height:100%;
+  overflow:hidden; /* prevent 3-digit overflow bleed */
+}
+.currentNum{
+  font-weight:900;
+  line-height:0.9; /* tighter for 3 digits */
+  letter-spacing:.5px;
+  text-align:center;
+  /* base size; JS will fit exactly */
+  font-size: 160px;
+}
+.stepList .title{
+  text-align:center; /* center 'Adım listesi' like 'Mevcut adım' */
+}
