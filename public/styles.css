@@ -50,3 +50,13 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
   .controls{gap:8px}
   .controls .spin{width:120px}
 }
+
+.current-step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(72px, 12vw, 160px);
+  font-weight: bold;
+  height: 100%;
+  width: 100%;
+}
