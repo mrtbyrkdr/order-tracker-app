@@ -1,1 +1,108 @@
-<!-- order.html - adım ekranı (v9.1 düzenlemeleriyle) -->
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sipariş Adımları</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="small">← Yeni sorgu</a>
+    <h1>Sipariş <span id="orderNo"></span></h1>
+
+    <div class="card unified">
+      <div class="currentBox">
+        <div class="title">Mevcut adım</div>
+        <div class="big" id="currentStep">-</div>
+        <div class="small" id="progress">0 / 0</div>
+      </div>
+      <div class="window7" id="window7"></div>
+    </div>
+
+    <div class="controls">
+      <button id="prev" class="btn" title="Önceki (←)">←</button>
+      <button id="play" class="btn" aria-pressed="false" title="Oynat/Duraklat (Space)">▶</button>
+      <input id="intervalSec" class="spin" type="number" min="1" step="1" value="5" title="Süre (saniye)" />
+      <button id="next" class="btn" title="Sonraki (→)">→</button>
+      <input id="jumpInput" class="spin" type="text" placeholder="Adıma git" />
+      <button id="jumpBtn" class="btn">Git</button>
+    </div>
+  </div>
+
+  <script>
+    function getOrderFromPath(){ const parts = window.location.pathname.split('/'); return decodeURIComponent(parts[2] || ''); }
+    const orderNo = getOrderFromPath(); document.getElementById('orderNo').textContent = orderNo;
+
+    const state = { steps: [], index: 0, timer: null };
+
+    async function load(){
+      const res = await fetch('/api/order/' + encodeURIComponent(orderNo));
+      if(!res.ok){ alert('Kayıt bulunamadı.'); location.href='/'; return; }
+      const arr = await res.json();
+      state.steps = Array.isArray(arr) ? arr : (arr.steps || []);
+      state.index = 0; render();
+    }
+
+    function render(){
+      const cur = state.steps[state.index];
+      document.getElementById('currentStep').textContent = cur ? cur.notch : '-';
+      document.getElementById('progress').textContent = `${state.index+1} / ${state.steps.length}`;
+
+      // build 7-slot window with blanks at head/tail as needed
+      const win = document.getElementById('window7');
+      win.innerHTML = '';
+      const total = state.steps.length;
+      const i = state.index;
+
+      // desired: always 7 slots centered on current when possible
+      let start = i - 3;
+      let end = i + 3;
+
+      if (start < 0) { end += -start; start = 0; }
+      if (end > total - 1) { start -= (end - (total - 1)); end = total - 1; }
+      if (start < 0) start = 0;
+
+      const slots = [];
+      for (let k = start; k <= end; k++) slots.push({ idx: k, val: state.steps[k].notch });
+      while (slots.length < 7) {
+        if (start === 0) { // add blank at head until 7
+          slots.unshift({ idx: null, val: "" });
+        } else { // add blank at tail
+          slots.push({ idx: null, val: "" });
+        }
+      }
+
+      for (let s = 0; s < 7; s++) {
+        const div = document.createElement('div');
+        const isCurrent = slots[s].idx === i;
+        div.className = 'slot' + (isCurrent ? ' current' : '');
+        div.textContent = slots[s].val === undefined ? '' : slots[s].val;
+        win.appendChild(div);
+      }
+    }
+
+    function next(){ if(state.index < state.steps.length - 1){ state.index++; render(); } else { stop(); } }
+    function prev(){ if(state.index > 0){ state.index--; render(); } }
+    function getIntervalMs(){ const sec = parseInt(document.getElementById('intervalSec').value,10); return (Number.isFinite(sec)&&sec>=1?sec:5)*1000; }
+    function play(){ if(state.timer) return; state.timer=setInterval(next, getIntervalMs()); document.getElementById('play').setAttribute('aria-pressed','true'); document.getElementById('play').textContent='⏸'; }
+    function stop(){ if(state.timer){ clearInterval(state.timer); state.timer=null; document.getElementById('play').setAttribute('aria-pressed','false'); document.getElementById('play').textContent='▶'; } }
+
+    document.getElementById('prev').onclick = prev;
+    document.getElementById('next').onclick = next;
+    document.getElementById('play').onclick = () => state.timer ? stop() : play();
+    document.getElementById('intervalSec').addEventListener('change', () => { if(state.timer){ stop(); play(); } });
+    document.getElementById('jumpBtn').onclick = () => {
+      const v = parseInt(document.getElementById('jumpInput').value,10);
+      if(Number.isFinite(v)){ const idx=v-1; if(idx>=0 && idx < state.steps.length){ state.index = idx; render(); } }
+    };
+    window.addEventListener('keydown', (e) => {
+      if(e.key === 'ArrowRight') next();
+      if(e.key === 'ArrowLeft') prev();
+      if(e.code === 'Space'){ e.preventDefault(); state.timer ? stop() : play(); }
+    });
+
+    load();
+  </script>
+</body>
+</html>

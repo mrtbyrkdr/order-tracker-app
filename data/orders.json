@@ -1,1 +1,44 @@
-{"TEST123": {"steps": {"1": "93"}}}
+{
+  "TEST123": [
+    {
+      "step": 1,
+      "notch": 93
+    },
+    {
+      "step": 2,
+      "notch": 201
+    },
+    {
+      "step": 3,
+      "notch": 9
+    },
+    {
+      "step": 4,
+      "notch": 160
+    },
+    {
+      "step": 5,
+      "notch": 151
+    },
+    {
+      "step": 6,
+      "notch": 192
+    },
+    {
+      "step": 7,
+      "notch": 230
+    },
+    {
+      "step": 8,
+      "notch": 212
+    },
+    {
+      "step": 9,
+      "notch": 86
+    },
+    {
+      "step": 10,
+      "notch": 29
+    }
+  ]
+}
