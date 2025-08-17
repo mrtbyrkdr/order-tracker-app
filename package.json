@@ -1,12 +1,1 @@
-{
-  "name": "order-tracker-app",
-  "version": "1.0.0",
-  "description": "Order lookup with premium UI (TR)",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2"
-  }
-}
+{"name": "order-tracker-app", "version": "1.0.0"}
