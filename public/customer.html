@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Müşteri</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Menü</h2>
+    <div id="menu"></div>
+    <button id="orderBtn" class="btn">Sipariş Ver</button>
+    <div id="result" class="small"></div>
+  </div>
+  <script>
+  const selections = {};
+  async function loadMenu(){
+    const res = await fetch('/api/menu');
+    const menu = await res.json();
+    const container = document.getElementById('menu');
+    menu.forEach(rest => {
+      const rDiv = document.createElement('div');
+      rDiv.innerHTML = `<h3>${rest.name}</h3>`;
+      rest.items.forEach(it => {
+        rDiv.innerHTML += `<label><input type="checkbox" data-rest="${rest.id}" data-item="${it.id}"/> ${it.name} (${it.price}₺)</label><br/>`;
+      });
+      container.appendChild(rDiv);
+    });
+  }
+  document.getElementById('menu').addEventListener('change', e => {
+    if(e.target.matches('input[type="checkbox"]')){
+      const rest = e.target.dataset.rest;
+      const item = e.target.dataset.item;
+      if(!selections[rest]) selections[rest] = [];
+      if(e.target.checked) selections[rest].push(item);
+      else selections[rest] = selections[rest].filter(i => i !== item);
+    }
+  });
+  document.getElementById('orderBtn').onclick = async () => {
+    const rid = Object.keys(selections)[0];
+    const items = selections[rid] || [];
+    if(!rid || items.length === 0){ alert('Ürün seçiniz'); return; }
+    const res = await fetch('/api/order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ restaurantId: rid, items })
+    });
+    const out = await res.json();
+    document.getElementById('result').textContent = out.ok ? `Sipariş alındı: ${out.id}` : (out.error || 'Hata');
+  };
+  loadMenu();
+  </script>
+</body>
+</html>

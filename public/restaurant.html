@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Restoran Paneli</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Restoran Siparişleri</h2>
+    <form id="loadForm" class="bar" autocomplete="off">
+      <input id="restId" class="input" placeholder="restoran id" />
+      <button type="submit" class="cta">Yükle</button>
+    </form>
+    <ul id="orders" class="small"></ul>
+  </div>
+  <script>
+  document.getElementById('loadForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const rid = document.getElementById('restId').value.trim();
+    if(!rid) return;
+    const res = await fetch('/api/restaurant/orders/' + encodeURIComponent(rid));
+    const arr = await res.json();
+    const list = document.getElementById('orders');
+    list.innerHTML = '';
+    if(Array.isArray(arr) && arr.length){
+      arr.forEach(o => {
+        const li = document.createElement('li');
+        li.textContent = `Sipariş ${o.id}: ${o.items.join(', ')}`;
+        list.appendChild(li);
+      });
+    } else {
+      const li = document.createElement('li');
+      li.textContent = 'Sipariş yok';
+      list.appendChild(li);
+    }
+  });
+  </script>
+</body>
+</html>

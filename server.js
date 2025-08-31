@@ -24,12 +24,30 @@ const dataDir = path.join(__dirname, 'data');
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
 const dataFile = path.join(dataDir, 'orders.json');
 
+// Food ordering files
+const menuFile = path.join(dataDir, 'menu.json');
+const foodOrdersFile = path.join(dataDir, 'foodOrders.json');
+
 function loadOrders() {
   if (!fs.existsSync(dataFile)) return {};
   try { return JSON.parse(fs.readFileSync(dataFile, 'utf-8')); }
   catch (e) { console.error('orders.json parse error:', e); return {}; }
 }
 function saveOrders(obj) { fs.writeFileSync(dataFile, JSON.stringify(obj, null, 2)); }
+
+function loadMenu() {
+  if (!fs.existsSync(menuFile)) return [];
+  try { return JSON.parse(fs.readFileSync(menuFile, 'utf-8')); }
+  catch (e) { console.error('menu.json parse error:', e); return []; }
+}
+
+function loadFoodOrders() {
+  if (!fs.existsSync(foodOrdersFile)) return [];
+  try { return JSON.parse(fs.readFileSync(foodOrdersFile, 'utf-8')); }
+  catch (e) { console.error('foodOrders.json parse error:', e); return []; }
+}
+
+function saveFoodOrders(arr) { fs.writeFileSync(foodOrdersFile, JSON.stringify(arr, null, 2)); }
 
 // Seed data (for TEST123 demo)
 const seed = [
@@ -51,6 +69,8 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.ht
 app.get('/order/:id', (req, res) => res.sendFile(path.join(__dirname, 'public', 'order.html')));
 app.get('/login', (req, res) => res.redirect('/login.html'));
 app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
+app.get('/customer', (req, res) => res.sendFile(path.join(__dirname, 'public', 'customer.html')));
+app.get('/restaurant', (req, res) => res.sendFile(path.join(__dirname, 'public', 'restaurant.html')));
 
 // PROTECT admin pages BEFORE static
 app.get('/admin', requireAdmin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
@@ -65,6 +85,28 @@ app.get('/api/order/:id', (req, res) => {
   const rec = all[req.params.id];
   if (rec) return res.json(rec);
   return res.status(404).json({ error: 'Sipariş bulunamadı' });
+});
+
+// Food ordering APIs
+app.get('/api/menu', (req, res) => {
+  res.json(loadMenu());
+});
+
+app.post('/api/order', (req, res) => {
+  const { restaurantId, items } = req.body;
+  if (!restaurantId || !Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ error: 'Eksik veya hatalı veri' });
+  }
+  const orders = loadFoodOrders();
+  const id = Math.random().toString(36).slice(2, 10);
+  orders.push({ id, restaurantId, items });
+  saveFoodOrders(orders);
+  res.json({ ok: true, id });
+});
+
+app.get('/api/restaurant/orders/:rid', (req, res) => {
+  const orders = loadFoodOrders().filter(o => o.restaurantId === req.params.rid);
+  res.json(orders);
 });
 
 // Admin APIs (protected)
