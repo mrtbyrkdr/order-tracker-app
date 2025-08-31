@@ -1,0 +1,10 @@
+[
+  {
+    "id": "rest1",
+    "name": "Lezzet Lokantası",
+    "items": [
+      { "id": "kebab", "name": "Adana Kebap", "price": 120 },
+      { "id": "lahmacun", "name": "Lahmacun", "price": 30 }
+    ]
+  }
+]
